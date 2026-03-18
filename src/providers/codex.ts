@@ -8,7 +8,12 @@ export function buildCodexCommand(input: AskCodexInput): {
   model: string;
 } {
   const model = resolveModel("codex", input.model);
-  const args = ["exec", "--ephemeral"];
+  let args: string[];
+  if (input.session_id) {
+    args = ["exec", "resume", input.session_id];
+  } else {
+    args = ["exec"];
+  }
   args.push("--model", model);
   if (input.reasoning_effort) {
     args.push("-c", `model_reasoning_effort=${input.reasoning_effort}`);

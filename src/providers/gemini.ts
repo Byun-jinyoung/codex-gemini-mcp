@@ -8,7 +8,10 @@ export function buildGeminiCommand(input: AskGeminiInput): {
   model: string;
 } {
   const model = resolveModel("gemini", input.model);
-  const args = ["--prompt", input.prompt];
+  const args = ["-p", input.prompt, "-y"];
+  if (input.session_id) {
+    args.push("--resume", input.session_id);
+  }
   args.push("--model", model);
   return {
     command: "gemini",

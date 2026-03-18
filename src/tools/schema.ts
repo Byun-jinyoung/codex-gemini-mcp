@@ -12,6 +12,14 @@ const BaseAskSchema = z.object({
     .describe(
       "Optional model override. Must match /^[A-Za-z0-9][A-Za-z0-9._:-]*$/ and be <= 128 chars.",
     ),
+  session_id: z
+    .string()
+    .trim()
+    .min(1)
+    .optional()
+    .describe(
+      "Optional session ID (UUID) to resume a previous conversation. If omitted, starts a new session.",
+    ),
   working_directory: z
     .string()
     .min(1)
