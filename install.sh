@@ -5,43 +5,96 @@ set -e
 
 REPO="https://github.com/Byun-jinyoung/codex-gemini-mcp.git"
 TMPDIR="/tmp/codex-gemini-mcp-install"
+ERRORS=0
 
 echo "=== Installing codex-gemini-mcp (fork with session resume + gemini -y) ==="
+
+# Prerequisites check
+echo "[0/5] Checking prerequisites..."
+for cmd in git node npm; do
+  if ! command -v $cmd &>/dev/null; then
+    echo "ERROR: $cmd is required but not found."
+    exit 1
+  fi
+done
+NODE_VER=$(node -v | sed 's/v//' | cut -d. -f1)
+if [ "$NODE_VER" -lt 20 ]; then
+  echo "ERROR: Node.js >= 20 required (found: $(node -v))"
+  exit 1
+fi
+echo "  node $(node -v), npm $(npm -v)"
 
 # Clean previous install attempts
 rm -rf "$TMPDIR"
 
 # Clone
-echo "[1/4] Cloning..."
+echo "[1/5] Cloning..."
 git clone --depth 1 "$REPO" "$TMPDIR"
-
 cd "$TMPDIR"
 
 # Install dependencies
-echo "[2/4] Installing dependencies..."
+echo "[2/5] Installing dependencies..."
 npm install --ignore-scripts
 
 # Global install
-echo "[3/4] Installing globally (may require sudo)..."
+echo "[3/5] Installing globally (may require sudo)..."
 if npm install -g . 2>/dev/null; then
-  echo "[4/4] Verifying..."
+  true
 else
-  echo "[3/4] Retrying with sudo..."
+  echo "  Retrying with sudo..."
   sudo npm install -g .
-  echo "[4/4] Verifying..."
 fi
 
-# Verify
-if command -v codex-mcp &>/dev/null && command -v gemini-mcp &>/dev/null; then
-  echo ""
-  echo "=== Installation successful ==="
-  echo "  codex-mcp: $(which codex-mcp)"
-  echo "  gemini-mcp: $(which gemini-mcp)"
-  echo ""
-  echo "Features: session_id resume, gemini -y (swarm support)"
+# Verify binaries
+echo "[4/5] Verifying binaries..."
+for bin in codex-mcp gemini-mcp; do
+  if command -v $bin &>/dev/null; then
+    echo "  $bin: $(which $bin)"
+  else
+    echo "  ERROR: $bin not found on PATH"
+    ERRORS=$((ERRORS + 1))
+  fi
+done
+
+# Verify fork features (session_id + -y flag)
+echo "[5/5] Verifying fork features..."
+INSTALL_PATH=$(npm root -g)/@donghae0414/codex-gemini-mcp/dist
+
+# Check session_id in schema
+if grep -q "session_id" "$INSTALL_PATH/tools/schema.js" 2>/dev/null; then
+  echo "  session_id parameter: OK"
 else
-  echo "WARNING: binaries not found on PATH. You may need to restart your shell."
+  echo "  ERROR: session_id parameter missing (not fork version)"
+  ERRORS=$((ERRORS + 1))
+fi
+
+# Check -y flag in gemini provider
+if grep -q '"-y"' "$INSTALL_PATH/providers/gemini.js" 2>/dev/null; then
+  echo "  gemini -y flag: OK"
+else
+  echo "  ERROR: gemini -y flag missing (not fork version)"
+  ERRORS=$((ERRORS + 1))
+fi
+
+# Check resume in codex provider
+if grep -q '"resume"' "$INSTALL_PATH/providers/codex.js" 2>/dev/null; then
+  echo "  codex resume: OK"
+else
+  echo "  ERROR: codex resume missing (not fork version)"
+  ERRORS=$((ERRORS + 1))
 fi
 
 # Cleanup
 rm -rf "$TMPDIR"
+
+# Result
+echo ""
+if [ $ERRORS -eq 0 ]; then
+  echo "=== Installation successful (all checks passed) ==="
+  echo "  Features: session_id resume, gemini -y (swarm support)"
+else
+  echo "=== Installation completed with $ERRORS error(s) ==="
+  echo "  Try: sudo npm uninstall -g @donghae0414/codex-gemini-mcp"
+  echo "  Then re-run this script."
+  exit 1
+fi
