@@ -30,6 +30,7 @@
     "dev:codex": "tsx src/mcp/codex-stdio-entry.ts",
     "dev:gemini": "tsx src/mcp/gemini-stdio-entry.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepare": "test -d dist && echo 'dist exists, skipping build' || npm run build",
     "prepublishOnly": "npm run typecheck && npm run build"
   },
   "keywords": [
