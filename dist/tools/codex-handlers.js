@@ -29,5 +29,45 @@ export async function handleAskCodex(input) {
         });
         return JSON.stringify(metadata);
     }
-    return runCli(command.command, command.args, timeoutMs, input.working_directory, logContext);
+    const raw = await runCli(command.command, command.args, timeoutMs, input.working_directory, logContext);
+    return parseCodexJsonl(raw);
+}
+/**
+ * Parse Codex --json JSONL output into {session_id, response}.
+ * Falls back to raw text if parsing fails.
+ */
+function parseCodexJsonl(raw) {
+    try {
+        let sessionId = "";
+        const texts = [];
+        for (const line of raw.split("\n")) {
+            const trimmed = line.trim();
+            if (!trimmed)
+                continue;
+            let event;
+            try {
+                event = JSON.parse(trimmed);
+            }
+            catch {
+                continue;
+            }
+            if (event.type === "thread.started" && typeof event.thread_id === "string") {
+                sessionId = event.thread_id;
+            }
+            if (event.type === "item.completed") {
+                const item = event.item;
+                if (item && typeof item.text === "string") {
+                    texts.push(item.text);
+                }
+            }
+        }
+        const response = texts.join("\n").trim();
+        if (sessionId || response) {
+            return JSON.stringify({ session_id: sessionId, response: response || "(empty response)" });
+        }
+    }
+    catch {
+        // fall through
+    }
+    return raw;
 }

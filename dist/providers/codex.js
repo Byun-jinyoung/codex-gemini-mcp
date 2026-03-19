@@ -4,10 +4,10 @@ export function buildCodexCommand(input) {
     const model = resolveModel("codex", input.model);
     let args;
     if (input.session_id) {
-        args = ["exec", "resume", input.session_id];
+        args = ["exec", "resume", input.session_id, "--json"];
     }
     else {
-        args = ["exec"];
+        args = ["exec", "--json"];
     }
     args.push("--model", model);
     if (input.reasoning_effort) {
