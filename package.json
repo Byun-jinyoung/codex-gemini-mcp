@@ -1,11 +1,12 @@
 {
   "name": "@donghae0414/codex-gemini-mcp",
   "version": "0.1.0",
-  "description": "Minimal TypeScript MCP server that proxies prompts to Codex and Gemini CLI",
+  "description": "Minimal TypeScript MCP server that proxies prompts to Codex, Gemini, and Antigravity CLI",
   "type": "module",
   "bin": {
     "codex-mcp": "dist/mcp/codex-stdio-entry.js",
-    "gemini-mcp": "dist/mcp/gemini-stdio-entry.js"
+    "gemini-mcp": "dist/mcp/gemini-stdio-entry.js",
+    "antigravity-mcp": "dist/mcp/antigravity-stdio-entry.js"
   },
   "files": [
     "dist",
@@ -26,9 +27,11 @@
     "start": "node dist/mcp/codex-stdio-entry.js",
     "start:codex": "node dist/mcp/codex-stdio-entry.js",
     "start:gemini": "node dist/mcp/gemini-stdio-entry.js",
+    "start:antigravity": "node dist/mcp/antigravity-stdio-entry.js",
     "dev": "tsx src/mcp/codex-stdio-entry.ts",
     "dev:codex": "tsx src/mcp/codex-stdio-entry.ts",
     "dev:gemini": "tsx src/mcp/gemini-stdio-entry.ts",
+    "dev:antigravity": "tsx src/mcp/antigravity-stdio-entry.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepare": "test -d dist && echo 'dist exists, skipping build' || npm run build",
     "prepublishOnly": "npm run typecheck && npm run build"
@@ -37,7 +40,8 @@
     "mcp",
     "typescript",
     "codex",
-    "gemini"
+    "gemini",
+    "antigravity"
   ],
   "engines": {
     "node": ">=20"

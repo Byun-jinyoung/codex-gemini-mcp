@@ -14,7 +14,7 @@ async function persistStatus(statusFile, status) {
     }
 }
 export async function runCliBackground(request) {
-    const { provider, command, args, prompt, model, timeoutMs, cwd, logContext } = request;
+    const { provider, command, args, prompt, model, timeoutMs, cwd, logContext, transformResponse } = request;
     const { jobId, contentFile, statusFile } = await createJobFiles(provider, prompt, cwd);
     const spawnedAt = nowIso();
     const startedAtMs = Date.now();
@@ -93,8 +93,18 @@ export async function runCliBackground(request) {
         clearTimeout(timer);
         const completedAt = nowIso();
         if (nextStatus === "completed") {
+            const rawResponse = stdout.trim() || "(empty response)";
+            let responseText = rawResponse;
+            if (transformResponse) {
+                try {
+                    responseText = await transformResponse(rawResponse);
+                }
+                catch (transformError) {
+                    console.error("transformResponse failed", transformError);
+                }
+            }
             await finalizeContentFile(contentFile, {
-                response: stdout.trim() || "(empty response)",
+                response: responseText,
                 completedAt,
             });
         }

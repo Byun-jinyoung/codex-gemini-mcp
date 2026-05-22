@@ -5,6 +5,7 @@ import type { Provider } from "./types.js";
 const HARDCODED_DEFAULTS: Record<Provider, string> = {
   codex: "gpt-5.3-codex",
   gemini: "gemini-3-pro-preview",
+  antigravity: "default",
 };
 
 const DEFAULT_TIMEOUT_MS = 3600000;
@@ -36,7 +37,9 @@ export function getDefaultModel(provider: Provider): string {
   const envName =
     provider === "codex"
       ? "MCP_CODEX_DEFAULT_MODEL"
-      : "MCP_GEMINI_DEFAULT_MODEL";
+      : provider === "gemini"
+        ? "MCP_GEMINI_DEFAULT_MODEL"
+        : "MCP_ANTIGRAVITY_DEFAULT_MODEL";
   const envModel = process.env[envName]?.trim();
   if (envModel) {
     return envModel;

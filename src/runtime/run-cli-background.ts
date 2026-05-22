@@ -20,7 +20,7 @@ async function persistStatus(statusFile: string, status: JobStatus): Promise<voi
 export async function runCliBackground(
   request: BackgroundRunRequest,
 ): Promise<BackgroundRunResult> {
-  const { provider, command, args, prompt, model, timeoutMs, cwd, logContext } = request;
+  const { provider, command, args, prompt, model, timeoutMs, cwd, logContext, transformResponse } = request;
   const { jobId, contentFile, statusFile } = await createJobFiles(
     provider,
     prompt,
@@ -117,8 +117,17 @@ export async function runCliBackground(
     const completedAt = nowIso();
 
     if (nextStatus === "completed") {
+      const rawResponse = stdout.trim() || "(empty response)";
+      let responseText = rawResponse;
+      if (transformResponse) {
+        try {
+          responseText = await transformResponse(rawResponse);
+        } catch (transformError) {
+          console.error("transformResponse failed", transformError);
+        }
+      }
       await finalizeContentFile(contentFile, {
-        response: stdout.trim() || "(empty response)",
+        response: responseText,
         completedAt,
       });
     } else {

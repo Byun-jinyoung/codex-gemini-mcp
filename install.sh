@@ -85,7 +85,7 @@ fi
 # Verify binaries
 echo "[5/6] Verifying binaries..."
 hash -r 2>/dev/null || true
-for bin in codex-mcp gemini-mcp; do
+for bin in codex-mcp gemini-mcp antigravity-mcp; do
   if command -v $bin &>/dev/null; then
     echo "  $bin: $(which $bin)"
   else

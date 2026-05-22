@@ -1,4 +1,4 @@
-export type Provider = "codex" | "gemini";
+export type Provider = "codex" | "gemini" | "antigravity";
 
 export interface BaseAskInput {
   prompt: string;
@@ -12,7 +12,7 @@ export interface RuntimeLogContext {
   requestId: string;
   jobId?: string;
   provider: Provider;
-  tool: "ask_codex" | "ask_gemini";
+  tool: "ask_codex" | "ask_gemini" | "ask_antigravity";
   model: string;
   timeoutMs: number;
   cwd?: string;
@@ -23,6 +23,8 @@ export interface AskCodexInput extends BaseAskInput {
 }
 
 export type AskGeminiInput = BaseAskInput;
+
+export type AskAntigravityInput = BaseAskInput;
 
 export type AskInput = AskCodexInput;
 
@@ -63,6 +65,7 @@ export interface BackgroundRunRequest {
   timeoutMs: number;
   cwd?: string;
   logContext?: RuntimeLogContext;
+  transformResponse?: (stdout: string) => Promise<string>;
 }
 
 export interface BackgroundRunResult {

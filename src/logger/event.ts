@@ -8,7 +8,7 @@ interface BaseLogEvent {
   request_id: string;
   job_id?: string;
   provider: Provider;
-  tool: "ask_codex" | "ask_gemini";
+  tool: "ask_codex" | "ask_gemini" | "ask_antigravity";
   model: string;
   timeout_ms: number;
 }

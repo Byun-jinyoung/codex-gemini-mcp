@@ -32,6 +32,7 @@ export const AskCodexSchema = BaseAskSchema.extend({
         .describe("Codex reasoning effort: minimal|low|medium|high|xhigh. If omitted, Codex CLI default is used."),
 });
 export const AskGeminiSchema = BaseAskSchema;
+export const AskAntigravitySchema = BaseAskSchema;
 const JobIdSchema = z
     .string()
     .regex(/^[0-9a-f]{8}$/)
