@@ -31,7 +31,6 @@ export const AskCodexSchema = BaseAskSchema.extend({
         .optional()
         .describe("Codex reasoning effort: minimal|low|medium|high|xhigh. If omitted, Codex CLI default is used."),
 });
-export const AskGeminiSchema = BaseAskSchema;
 export const AskAntigravitySchema = BaseAskSchema;
 const JobIdSchema = z
     .string()

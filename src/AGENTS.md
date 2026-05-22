@@ -21,10 +21,10 @@ src/
 | Task | Location | Notes |
 |------|----------|-------|
 | Codex stdio entry | `src/mcp/codex-stdio-entry.ts` | codex-only stdio server |
-| Gemini stdio entry | `src/mcp/gemini-stdio-entry.ts` | gemini-only stdio server |
+| Antigravity stdio entry | `src/mcp/antigravity-stdio-entry.ts` | antigravity-only stdio server |
 | Input validation | `src/tools/schema.ts` | ask + job schemas (zod) |
-| Ask handlers | `src/tools/codex-handlers.ts`, `src/tools/gemini-handlers.ts` | foreground/background branching |
-| Provider handlers | `src/providers/codex.ts`, `src/providers/gemini.ts` | `build*Command`, `ask*` |
+| Ask handlers | `src/tools/codex-handlers.ts`, `src/tools/antigravity-handlers.ts` | foreground/background branching |
+| Provider handlers | `src/providers/codex.ts`, `src/providers/antigravity.ts` | `build*Command`, `ask*` |
 | Process handling | `src/runtime/run-cli.ts`, `src/runtime/run-cli-background.ts` | foreground + background execution |
 | Job persistence | `src/prompt-store.ts` | prompt/response/status file I/O |
 | Job APIs | `src/job-management.ts` | wait/check/kill/list logic |

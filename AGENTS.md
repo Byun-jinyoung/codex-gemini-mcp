@@ -6,7 +6,9 @@
 **Project:** codex-gemini-mcp
 
 ## OVERVIEW
-CLI-only TypeScript MCP server that proxies local `codex` and `gemini` CLIs. Main concerns are strict input validation, foreground/background execution, file-backed job persistence, and structured JSONL logging.
+CLI-only TypeScript MCP server that proxies local `codex` and `agy` (Antigravity) CLIs. Main concerns are strict input validation, foreground/background execution, file-backed job persistence, and structured JSONL logging.
+
+> Gemini CLI support was removed on 2026-06-18; the previous `gemini` provider has been replaced by `antigravity`. Older docs below may still mention `gemini-mcp` / `ask_gemini` — those names no longer exist.
 
 ## STRUCTURE
 ```text

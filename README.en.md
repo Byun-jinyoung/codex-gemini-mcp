@@ -2,16 +2,19 @@
 
 # codex-gemini-mcp
 
-A proxy server that lets AI agents (Claude, Cursor, etc.) call **OpenAI Codex CLI** and **Google Gemini CLI** directly as MCP tools.
+A proxy server that lets AI agents (Claude, Cursor, etc.) call **OpenAI Codex CLI** and **Google Antigravity CLI (agy)** directly as MCP tools.
+
+> ⚠️ **Gemini CLI support ends 2026-06-18; `ask_gemini` / `gemini-mcp` have been removed.**
+> Migrate all Gemini usage to `ask_antigravity` / `antigravity-mcp`. The Antigravity CLI provides multi-turn conversations (`session_id`) and the same background job management as before.
 
 ## Key Features
 
 - **`ask_codex`** — Have your agent request code generation, refactoring, and debugging from Codex
-- **`ask_gemini`** — Have your agent request analysis, summarization, and code review from Gemini
+- **`ask_antigravity`** — Have your agent request analysis, design, and implementation work from the Antigravity CLI (agy)
+- **Multi-turn conversations** — Continue prior context with `session_id` (supported on both codex and antigravity)
 - **Background execution** — Run long-running tasks in the background and manage them with `check_job_status`, `wait_for_job`, `kill_job`, and `list_jobs`
-- **Multi-model orchestration** — A single agent can leverage both Codex and Gemini simultaneously for task distribution
 
-Ships two MCP server binaries — `codex-mcp` and `gemini-mcp` — from a single package, communicating over stdio transport.
+Ships two MCP server binaries — `codex-mcp` and `antigravity-mcp` — from a single package, communicating over stdio transport.
 
 ## Requirements
 

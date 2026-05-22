@@ -2,16 +2,19 @@
 
 # codex-gemini-mcp
 
-AI 에이전트(Claude, Cursor 등)가 **OpenAI Codex CLI**와 **Google Gemini CLI**를 MCP 도구로 직접 호출할 수 있게 해주는 프록시 서버입니다.
+AI 에이전트(Claude, Cursor 등)가 **OpenAI Codex CLI**와 **Google Antigravity CLI(agy)**를 MCP 도구로 직접 호출할 수 있게 해주는 프록시 서버입니다.
+
+> ⚠️ **2026-06-18 부로 Gemini CLI 지원이 중단되어 `ask_gemini` / `gemini-mcp` 는 제거되었습니다.**
+> Gemini 사용처는 모두 `ask_antigravity` / `antigravity-mcp` 로 대체하세요. Antigravity CLI 는 멀티턴 대화(`session_id`)와 동일한 백그라운드 잡 관리 기능을 제공합니다.
 
 ## 주요 기능
 
 - **`ask_codex`** — 에이전트가 Codex에게 코드 생성·리팩터링·디버깅을 요청
-- **`ask_gemini`** — 에이전트가 Gemini에게 분석·요약·코드 리뷰를 요청
+- **`ask_antigravity`** — 에이전트가 Antigravity CLI(agy)에게 분석·요약·설계·구현 작업을 요청
+- **멀티턴 대화** — `session_id` 로 이전 대화 컨텍스트를 이어가기 (codex / antigravity 둘 다 지원)
 - **백그라운드 실행** — 오래 걸리는 작업을 백그라운드로 돌리고, 상태 확인(`check_job_status`)·대기(`wait_for_job`)·중단(`kill_job`)·목록 조회(`list_jobs`)로 관리
-- **멀티모델 오케스트레이션** — 하나의 에이전트가 Codex와 Gemini를 동시에 활용하여 작업 분담 가능
 
-하나의 패키지에서 `codex-mcp`와 `gemini-mcp` 두 개의 MCP 서버 바이너리를 제공하며, stdio transport 기반으로 동작합니다.
+하나의 패키지에서 `codex-mcp`와 `antigravity-mcp` 두 개의 MCP 서버 바이너리를 제공하며, stdio transport 기반으로 동작합니다.
 
 
 ## Requirements

@@ -7,7 +7,7 @@ REPO="https://github.com/Byun-jinyoung/codex-gemini-mcp.git"
 TMPDIR="/tmp/codex-gemini-mcp-install"
 ERRORS=0
 
-echo "=== Installing codex-gemini-mcp (fork with session resume + gemini -y) ==="
+echo "=== Installing codex-gemini-mcp (fork with session resume + antigravity) ==="
 
 # Prerequisites check
 echo "[0/6] Checking prerequisites..."
@@ -85,7 +85,7 @@ fi
 # Verify binaries
 echo "[5/6] Verifying binaries..."
 hash -r 2>/dev/null || true
-for bin in codex-mcp gemini-mcp antigravity-mcp; do
+for bin in codex-mcp antigravity-mcp; do
   if command -v $bin &>/dev/null; then
     echo "  $bin: $(which $bin)"
   else
@@ -122,10 +122,10 @@ else
     ERRORS=$((ERRORS + 1))
   fi
 
-  if grep -q '"-y"' "$INSTALL_PATH/providers/gemini.js" 2>/dev/null; then
-    echo "  gemini -y flag: OK"
+  if grep -q '"--conversation"' "$INSTALL_PATH/providers/antigravity.js" 2>/dev/null; then
+    echo "  antigravity --conversation flag: OK"
   else
-    echo "  ERROR: gemini -y flag missing"
+    echo "  ERROR: antigravity --conversation flag missing"
     ERRORS=$((ERRORS + 1))
   fi
 
@@ -144,7 +144,7 @@ rm -rf "$TMPDIR"
 echo ""
 if [ $ERRORS -eq 0 ]; then
   echo "=== Installation successful (all checks passed) ==="
-  echo "  Features: session_id resume, gemini -y (swarm support)"
+  echo "  Features: session_id resume (codex + antigravity)"
 else
   echo "=== Installation completed with $ERRORS error(s) ==="
   echo "  Try: $USE_SUDO npm uninstall -g @donghae0414/codex-gemini-mcp"

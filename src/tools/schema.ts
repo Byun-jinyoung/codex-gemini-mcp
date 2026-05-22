@@ -40,8 +40,6 @@ export const AskCodexSchema = BaseAskSchema.extend({
     ),
 });
 
-export const AskGeminiSchema = BaseAskSchema;
-
 export const AskAntigravitySchema = BaseAskSchema;
 
 const JobIdSchema = z

@@ -4,10 +4,6 @@
       "command": "node",
       "args": ["./dist/mcp/codex-stdio-entry.js"]
     },
-    "gemini-mcp": {
-      "command": "node",
-      "args": ["./dist/mcp/gemini-stdio-entry.js"]
-    },
     "antigravity-mcp": {
       "command": "node",
       "args": ["./dist/mcp/antigravity-stdio-entry.js"]
