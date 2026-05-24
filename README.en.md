@@ -20,7 +20,7 @@ Ships two MCP server binaries — `codex-mcp` and `antigravity-mcp` — from a s
 
 - Node.js 20+
 - `codex` CLI installed (`npm i -g @openai/codex`)
-- `gemini` CLI installed (`npm i -g @google/gemini-cli`)
+- `agy` (Antigravity) CLI installed and authenticated (typically resolves to `~/.local/bin/agy`)
 
 The MCP servers invoke each CLI directly, so make sure you have completed login/authentication and can run `codex` / `gemini` from your local terminal.
 
@@ -36,7 +36,7 @@ Without global install, using npx:
 
 ```bash
 npx -y -p @donghae0414/codex-gemini-mcp codex-mcp
-npx -y -p @donghae0414/codex-gemini-mcp gemini-mcp
+npx -y -p @donghae0414/codex-gemini-mcp antigravity-mcp
 ```
 
 Install from source (development/testing):
@@ -58,8 +58,8 @@ Global install:
       "command": "codex-mcp",
       "args": []
     },
-    "gemini-mcp": {
-      "command": "gemini-mcp",
+    "antigravity-mcp": {
+      "command": "antigravity-mcp",
       "args": []
     }
   }
@@ -75,9 +75,9 @@ Without global install (npx):
       "command": "npx",
       "args": ["-y", "-p", "@donghae0414/codex-gemini-mcp", "codex-mcp"]
     },
-    "gemini-mcp": {
+    "antigravity-mcp": {
       "command": "npx",
-      "args": ["-y", "-p", "@donghae0414/codex-gemini-mcp", "gemini-mcp"]
+      "args": ["-y", "-p", "@donghae0414/codex-gemini-mcp", "antigravity-mcp"]
     }
   }
 }
@@ -92,9 +92,9 @@ opencode (`opencode.json`):
       "type": "local",
       "command": ["npx", "-y", "-p", "@donghae0414/codex-gemini-mcp", "codex-mcp"]
     },
-    "gemini-mcp": {
+    "antigravity-mcp": {
       "type": "local",
-      "command": ["npx", "-y", "-p", "@donghae0414/codex-gemini-mcp", "gemini-mcp"]
+      "command": ["npx", "-y", "-p", "@donghae0414/codex-gemini-mcp", "antigravity-mcp"]
     }
   }
 }
@@ -117,7 +117,7 @@ Default models are hardcoded in `src/config.ts` and can be overridden via enviro
 | Provider | Default Model | Env Override |
 |----------|---------------|--------------|
 | codex | `gpt-5.3-codex` | `MCP_CODEX_DEFAULT_MODEL` |
-| gemini | `gemini-3-pro-preview` | `MCP_GEMINI_DEFAULT_MODEL` |
+| antigravity | `default` (agy has no `--model` flag — label only) | `MCP_ANTIGRAVITY_DEFAULT_MODEL` |
 
 Model selection priority: **request `model` param** > **env variable** > **hardcoded default**
 
@@ -127,14 +127,14 @@ Model selection priority: **request `model` param** > **env variable** > **hardc
 npm install
 npm run build
 npm run start:codex
-npm run start:gemini
+npm run start:antigravity
 ```
 
 Dev mode:
 
 ```bash
 npm run dev:codex
-npm run dev:gemini
+npm run dev:antigravity
 ```
 
 ## Runtime Files
@@ -171,12 +171,15 @@ rm -rf .codex-gemini-mcp
 - `background` (boolean, optional, default `true`)
 - `reasoning_effort` (string, optional: `minimal` | `low` | `medium` | `high` | `xhigh`)
 
-### ask_gemini
+### ask_antigravity
 
 - `prompt` (string, required)
-- `model` (string, optional) — must match `[A-Za-z0-9][A-Za-z0-9._:-]*` (max 128 chars)
+- `model` (string, optional) — label only; agy itself has no `--model` flag. Must match `[A-Za-z0-9][A-Za-z0-9._:-]*` (max 128 chars)
+- `session_id` (string, optional): prior conversation UUID — passed to agy via `--conversation <id>` for multi-turn context
 - `working_directory` (string, optional): working directory (cwd) for the CLI process
 - `background` (boolean, optional, default `true`)
+
+Response is JSON `{"session_id": "<uuid>", "response": "<stdout>"}`. The `session_id` is the conversation UUID assigned by agy; pass it back on the next call to continue the same conversation.
 
 ### wait_for_job
 
@@ -200,7 +203,7 @@ rm -rf .codex-gemini-mcp
 ## Runtime Notes
 
 - `ask_codex`: invokes `codex exec --ephemeral` (adds `-c model_reasoning_effort=...` when `reasoning_effort` is specified)
-- `ask_gemini`: invokes `gemini --prompt <text>`
+- `ask_antigravity`: invokes `agy -p <prompt> --dangerously-skip-permissions [--conversation <session_id>] --log-file <runtime>/agy-logs/<requestId>.log`. The conversation UUID is extracted from the log file after the call finishes (regex `Created conversation <uuid>`).
 - `ask_*` defaults to `background: true` when not specified
 - `background: true` calls persist status/content files in `.codex-gemini-mcp/jobs` and `.codex-gemini-mcp/prompts`
 - Structured logging (JSONL): `.codex-gemini-mcp/logs/mcp-YYYY-MM-DD.jsonl`
@@ -210,7 +213,7 @@ rm -rf .codex-gemini-mcp
   - Log events are mirrored to `stderr` alongside JSONL file writes
 - Model selection priority: `request.model > env default > hardcoded default`
   - codex env: `MCP_CODEX_DEFAULT_MODEL` (default: `gpt-5.3-codex`)
-  - gemini env: `MCP_GEMINI_DEFAULT_MODEL` (default: `gemini-3-pro-preview`)
+  - antigravity env: `MCP_ANTIGRAVITY_DEFAULT_MODEL` (default: `default` — label only, agy has no model flag)
 - Default CLI timeout: `MCP_CLI_TIMEOUT_MS` or 3600000ms (60 min)
 - If combined `stdout + stderr` output exceeds `MCP_MAX_OUTPUT_BYTES`, the run terminates with `CLI_OUTPUT_LIMIT_EXCEEDED`
 - Output runs with color/TTY disabled for stable text piping (`NO_COLOR=1`, `FORCE_COLOR=0`, `TERM=dumb`)
@@ -228,7 +231,7 @@ rm -rf .codex-gemini-mcp
 ## Environment Variables
 
 - `MCP_CODEX_DEFAULT_MODEL`: default codex model
-- `MCP_GEMINI_DEFAULT_MODEL`: default gemini model
+- `MCP_ANTIGRAVITY_DEFAULT_MODEL`: default antigravity model label (agy has no real model flag)
 - `MCP_CLI_TIMEOUT_MS`: default CLI timeout (ms)
 - `MCP_MAX_OUTPUT_BYTES`: max output bytes (cap, default 1048576 = 1MiB)
 - `MCP_RUNTIME_DIR`: runtime file root (default `.codex-gemini-mcp`)
@@ -238,8 +241,9 @@ rm -rf .codex-gemini-mcp
 
 ## Current Status
 
-- Binary entries: `codex-mcp`, `gemini-mcp`
-- Verified: `ask_codex`, `ask_gemini` foreground/background live calls
+- Binary entries: `codex-mcp`, `antigravity-mcp`
+- Verified: `ask_codex`, `ask_antigravity` foreground/background live calls
+- Verified: codex / antigravity multi-turn session_id round-trip (secret token recall)
 - Verified: `wait_for_job`, `check_job_status`, `kill_job`, `list_jobs` live calls
 - Implemented: structured logging (Phase D)
 - Implemented: output cap enforcement + model regex validation
@@ -255,7 +259,7 @@ This project intentionally does not include:
 
 - `CLI_NOT_FOUND`:
   - Occurs when `codex` or `gemini` CLI is not in PATH.
-  - Install with `npm i -g @openai/codex` / `npm i -g @google/gemini-cli` and retry.
+  - Install with `npm i -g @openai/codex` and install the Antigravity CLI (resolves to `~/.local/bin/agy`), then retry.
 - Output truncated (`CLI_OUTPUT_LIMIT_EXCEEDED`):
   - Increase `MCP_MAX_OUTPUT_BYTES`, or reduce prompt/output size.
 - Background files accumulating:
@@ -263,7 +267,7 @@ This project intentionally does not include:
 
 ## Acknowledgements
 
-This project is a reimplementation of the Codex/Gemini MCP servers originally built in [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode).
+This project is a reimplementation of the Codex/Gemini MCP servers originally built in [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode). The Gemini provider was replaced with Antigravity on 2026-06-18 following Gemini CLI deprecation.
 
 ## License
 

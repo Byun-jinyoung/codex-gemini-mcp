@@ -21,9 +21,9 @@ AI 에이전트(Claude, Cursor 등)가 **OpenAI Codex CLI**와 **Google Antigrav
 
 - Node.js 20+
 - `codex` CLI 설치 (`npm i -g @openai/codex`)
-- `gemini` CLI 설치 (`npm i -g @google/gemini-cli`)
+- `agy` (Antigravity) CLI 설치 및 인증 완료 (PATH 상 `~/.local/bin/agy` 등으로 해석되는지 확인)
 
-MCP 서버는 각각의 CLI를 그대로 실행하므로, 먼저 로컬 터미널에서 로그인/인증이 완료되어 `codex` / `gemini` CLI를 바로 실행할 수 있는 상태인지 확인하세요.
+MCP 서버는 각각의 CLI를 그대로 실행하므로, 먼저 로컬 터미널에서 로그인/인증이 완료되어 `codex` / `agy` (Antigravity) CLI를 바로 실행할 수 있는 상태인지 확인하세요.
 
 ## Install
 
@@ -37,7 +37,7 @@ npm i -g @donghae0414/codex-gemini-mcp
 
 ```bash
 npx -y -p @donghae0414/codex-gemini-mcp codex-mcp
-npx -y -p @donghae0414/codex-gemini-mcp gemini-mcp
+npx -y -p @donghae0414/codex-gemini-mcp antigravity-mcp
 ```
 
 소스에서 설치(개발/테스트):
@@ -59,8 +59,8 @@ npm link
       "command": "codex-mcp",
       "args": []
     },
-    "gemini-mcp": {
-      "command": "gemini-mcp",
+    "antigravity-mcp": {
+      "command": "antigravity-mcp",
       "args": []
     }
   }
@@ -76,9 +76,9 @@ npm link
       "command": "npx",
       "args": ["-y", "-p", "@donghae0414/codex-gemini-mcp", "codex-mcp"]
     },
-    "gemini-mcp": {
+    "antigravity-mcp": {
       "command": "npx",
-      "args": ["-y", "-p", "@donghae0414/codex-gemini-mcp", "gemini-mcp"]
+      "args": ["-y", "-p", "@donghae0414/codex-gemini-mcp", "antigravity-mcp"]
     }
   }
 }
@@ -93,9 +93,9 @@ opencode (`opencode.json`):
       "type": "local",
       "command": ["npx", "-y", "-p", "@donghae0414/codex-gemini-mcp", "codex-mcp"]
     },
-    "gemini-mcp": {
+    "antigravity-mcp": {
       "type": "local",
-      "command": ["npx", "-y", "-p", "@donghae0414/codex-gemini-mcp", "gemini-mcp"]
+      "command": ["npx", "-y", "-p", "@donghae0414/codex-gemini-mcp", "antigravity-mcp"]
     }
   }
 }
@@ -118,7 +118,7 @@ opencode (`opencode.json`):
 | Provider | 기본 모델 | 환경 변수 override |
 |----------|-----------|-------------------|
 | codex | `gpt-5.3-codex` | `MCP_CODEX_DEFAULT_MODEL` |
-| gemini | `gemini-3-pro-preview` | `MCP_GEMINI_DEFAULT_MODEL` |
+| antigravity | `default` (agy 자체에 `--model` 플래그 없음 — 라벨 용도) | `MCP_ANTIGRAVITY_DEFAULT_MODEL` |
 
 모델 선택 우선순위: **요청 파라미터 `model`** > **환경 변수** > **하드코딩 기본값**
 
@@ -128,14 +128,14 @@ opencode (`opencode.json`):
 npm install
 npm run build
 npm run start:codex
-npm run start:gemini
+npm run start:antigravity
 ```
 
 개발 모드:
 
 ```bash
 npm run dev:codex
-npm run dev:gemini
+npm run dev:antigravity
 ```
 
 ## Runtime Files
@@ -173,13 +173,16 @@ rm -rf .codex-gemini-mcp
 - `background` (boolean, optional, default `true`)
 - `reasoning_effort` (string, optional: `minimal` | `low` | `medium` | `high` | `xhigh`)
 
-### ask_gemini
+### ask_antigravity
 
 - `prompt` (string, required)
-- `model` (string, optional)
+- `model` (string, optional) — agy 자체에는 `--model` 플래그가 없으므로 라벨 용도 (로그/잡 메타데이터에만 사용)
 - `model`은 `[A-Za-z0-9][A-Za-z0-9._:-]*` 패턴(최대 128자)만 허용
+- `session_id` (string, optional): 이전 대화 UUID → `agy --conversation <id>` 로 전달되어 멀티턴 컨텍스트 이어가기
 - `working_directory` (string, optional): CLI 프로세스의 실행 디렉토리(cwd)
 - `background` (boolean, optional, default `true`)
+
+응답은 JSON `{"session_id": "<uuid>", "response": "<stdout>"}`. session_id 는 agy 가 새 대화에 부여하는 UUID 로, 다음 호출의 `session_id` 파라미터로 그대로 재사용.
 
 ### wait_for_job
 
@@ -203,7 +206,7 @@ rm -rf .codex-gemini-mcp
 ## Runtime Notes
 
 - `ask_codex`: `codex exec --ephemeral` 호출 (`reasoning_effort` 지정 시 `-c model_reasoning_effort=...` 추가)
-- `ask_gemini`: `gemini --prompt <text>` 호출
+- `ask_antigravity`: `agy -p <prompt> --dangerously-skip-permissions [--conversation <session_id>] --log-file <runtime>/agy-logs/<requestId>.log` 호출. 종료 후 log 파일에서 `Created conversation <uuid>` 매칭으로 session_id 추출
 - `ask_*`는 `background` 미지정 시 기본 `true`로 실행
 - `background: true` 호출 시 `.codex-gemini-mcp/jobs`, `.codex-gemini-mcp/prompts`에 상태/입출력(content) 파일 저장
 - 구조화 로깅(JSONL): `.codex-gemini-mcp/logs/mcp-YYYY-MM-DD.jsonl`
@@ -213,7 +216,7 @@ rm -rf .codex-gemini-mcp
   - 로그 이벤트는 JSONL 파일 저장과 함께 `stderr`에도 미러링됨
 - 모델 선택 우선순위: `request.model > env default > hardcoded default`
   - codex env: `MCP_CODEX_DEFAULT_MODEL` (기본값: `gpt-5.3-codex`)
-  - gemini env: `MCP_GEMINI_DEFAULT_MODEL` (기본값: `gemini-3-pro-preview`)
+  - antigravity env: `MCP_ANTIGRAVITY_DEFAULT_MODEL` (기본값: `default` — agy 자체에 모델 플래그 없음, 라벨 용도)
 - CLI timeout 기본값은 `MCP_CLI_TIMEOUT_MS` 또는 3600000ms(60분)
 - `stdout + stderr` 합산 출력이 `MCP_MAX_OUTPUT_BYTES`를 넘으면 `CLI_OUTPUT_LIMIT_EXCEEDED`로 종료
 - 출력은 안정적인 텍스트 파이프를 위해 색상/TTY를 비활성화하여 실행합니다 (`NO_COLOR=1`, `FORCE_COLOR=0`, `TERM=dumb`)
@@ -231,7 +234,7 @@ rm -rf .codex-gemini-mcp
 ## Environment Variables
 
 - `MCP_CODEX_DEFAULT_MODEL`: codex 기본 모델
-- `MCP_GEMINI_DEFAULT_MODEL`: gemini 기본 모델
+- `MCP_ANTIGRAVITY_DEFAULT_MODEL`: antigravity 기본 모델 라벨 (agy 자체에 모델 플래그 없음)
 - `MCP_CLI_TIMEOUT_MS`: 기본 CLI timeout(ms)
 - `MCP_MAX_OUTPUT_BYTES`: 최대 출력 바이트(cap, 기본 1048576 = 1MiB)
 - `MCP_RUNTIME_DIR`: 런타임 파일 기본 루트(`.codex-gemini-mcp`)
@@ -241,8 +244,9 @@ rm -rf .codex-gemini-mcp
 
 ## Current Status
 
-- 바이너리 엔트리: `codex-mcp`, `gemini-mcp`
-- 검증 완료: `ask_codex`, `ask_gemini` foreground/background 실호출 성공
+- 바이너리 엔트리: `codex-mcp`, `antigravity-mcp`
+- 검증 완료: `ask_codex`, `ask_antigravity` foreground/background 실호출 성공
+- 검증 완료: codex / antigravity multi-turn session_id 라운드트립 (secret token 회수)
 - 검증 완료: `wait_for_job`, `check_job_status`, `kill_job`, `list_jobs` 실호출 성공
 - 구현 완료: 구조화 로깅(Phase D)
 - 구현 완료: output cap 강제 + model regex validation
@@ -257,8 +261,8 @@ rm -rf .codex-gemini-mcp
 ## Troubleshooting
 
 - `CLI_NOT_FOUND`:
-  - `codex` 또는 `gemini` CLI가 PATH에 없을 때 발생합니다.
-  - `npm i -g @openai/codex` / `npm i -g @google/gemini-cli` 설치 후 재시도하세요.
+  - `codex` 또는 `agy` CLI가 PATH에 없을 때 발생합니다.
+  - `npm i -g @openai/codex` 설치 / Antigravity CLI 설치 후 PATH 확인하세요 (보통 `~/.local/bin/agy`).
 - output이 잘림(`CLI_OUTPUT_LIMIT_EXCEEDED`):
   - `MCP_MAX_OUTPUT_BYTES`를 늘리거나, 프롬프트/출력을 줄이세요.
 - background 파일이 너무 쌓임:
@@ -266,7 +270,7 @@ rm -rf .codex-gemini-mcp
 
 ## Acknowledgements
 
-이 프로젝트는 [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode)에 구현된 Codex/Gemini MCP 서버를 참고하여 재구현한 것입니다.
+이 프로젝트는 [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode)에 구현된 Codex/Gemini MCP 서버를 참고하여 재구현한 것입니다 (Gemini 자리는 2026-06-18 이후 Antigravity 로 교체됨).
 
 ## License
 
